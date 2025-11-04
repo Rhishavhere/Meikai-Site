@@ -1,9 +1,14 @@
 import { motion, useAnimationFrame } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 export default function App() {
   const orb1 = useRef(null);
   const orb2 = useRef(null);
+
+  // Form state
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState(""); // 'loading', 'success', 'error'
+  const [message, setMessage] = useState("");
 
   // Subtle floating animation using requestAnimationFrame
   useAnimationFrame((t) => {
@@ -17,6 +22,53 @@ export default function App() {
       orb2.current.style.transform = `translate(${x2}px, ${y2}px)`;
     }
   });
+
+  // Handle waitlist form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus("error");
+      setMessage("Please enter a valid email address");
+      return;
+    }
+
+    setStatus("loading");
+    setMessage("");
+
+    try {
+      // Get the Google Sheets URL from environment variable
+      const sheetsUrl = import.meta.env.VITE_GOOGLE_SHEETS_URL;
+
+      if (!sheetsUrl) {
+        throw new Error("Google Sheets URL not configured. Please check .env file.");
+      }
+
+      // Send to Google Sheets via Apps Script
+      const response = await fetch(sheetsUrl, {
+        method: "POST",
+        mode: "no-cors", // Required for Google Apps Script
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+
+      // Note: With no-cors mode, we can't read the response
+      // So we assume success if no error is thrown
+      setStatus("success");
+      setMessage("You're on the waitlist! We'll be in touch soon.");
+      setEmail(""); // Clear the input
+
+    } catch (error) {
+      console.error("Error joining waitlist:", error);
+      setStatus("error");
+      setMessage("Something went wrong. Please try again.");
+    }
+  };
 
   return (
     <div className="relative min-h-screen text-white overflow-hidden font-sans">
@@ -129,11 +181,11 @@ export default function App() {
             },
             {
               title: "Light & Fast",
-              desc: "Built with Tauri and React, Meikai runs like air — fast, native, efficient.",
+              desc: "Built upon Rust, Meikai runs like air — fast, native, efficient.",
             },
             {
               title: "Focus Mode",
-              desc: "Hide all UI. Press one shortcut — just you and the website.",
+              desc: "Hide all UI — just you and the website.",
             },
           ].map((item, i) => (
             <div
@@ -171,21 +223,40 @@ export default function App() {
         </motion.p>
 
         <form
-          onSubmit={(e) => e.preventDefault()}
+          onSubmit={handleSubmit}
           className="flex flex-col sm:flex-row justify-center items-center gap-4 px-6 max-w-lg mx-auto"
         >
           <input
             type="email"
             placeholder="you@example.com"
-            className="px-6 py-3 rounded-full w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={status === "loading"}
+            className="px-6 py-3 rounded-full w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:border-white/40 disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
             type="submit"
-            className="bg-white text-black px-8 py-3 rounded-full font-medium hover:bg-gray-200 transition-all"
+            disabled={status === "loading"}
+            className="bg-white text-black px-8 py-3 rounded-full font-medium hover:bg-gray-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
           >
-            Join Waitlist
+            {status === "loading" ? "Joining..." : "Join Waitlist"}
           </button>
         </form>
+
+        {/* Success/Error Messages */}
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`mt-6 px-6 py-3 rounded-full max-w-lg mx-auto text-center ${
+              status === "success"
+                ? "bg-green-500/20 border border-green-500/40 text-green-300"
+                : "bg-red-500/20 border border-red-500/40 text-red-300"
+            }`}
+          >
+            {message}
+          </motion.div>
+        )}
       </section>
     </div>
   );
