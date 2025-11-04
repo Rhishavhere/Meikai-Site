@@ -19,12 +19,12 @@ export default function App() {
   });
 
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden font-sans">
+    <div className="relative min-h-screen text-white overflow-hidden font-sans">
       {/* ✨ Layer 1: Animated gradient orbs */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div
           ref={orb1}
-          className="absolute top-1/3 left-1/2 w-[700px] h-[700px] bg-gradient-to-r from-blue-600/30 to-indigo-500/20 rounded-full blur-[180px] -translate-x-1/2"
+          className="absolute top-1/6 left-1/2 w-[700px] h-[700px] bg-gradient-to-r from-blue-600/30 to-indigo-500/20 rounded-full blur-[180px] -translate-x-1/2"
         ></div>
         <div
           ref={orb2}
@@ -95,7 +95,7 @@ export default function App() {
       </section>
 
       {/* WHY MEIKAI */}
-      <section className="max-w-5xl mx-auto px-6 py-32 text-center" id="about">
+      <section className="max-w-5xl mx-auto px-6 py-32 text-center -mt-20" id="about">
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -111,8 +111,8 @@ export default function App() {
           transition={{ delay: 0.2, duration: 0.8 }}
           className="mt-8 text-gray-400 text-lg leading-relaxed max-w-3xl mx-auto"
         >
-          Today’s browsers feel like operating systems — heavy, cluttered, and noisy.  
-          Meikai strips all that away. It’s a minimal browser built for flow,  
+          Modern browsers feel like operating systems — heavy, cluttered, and noisy.  
+          Meikai strips all that away. It is a minimal browser built for flow,  
           so you can focus on what matters: the content, the creation, the calm.
         </motion.p>
 
