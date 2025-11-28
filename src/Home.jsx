@@ -10,7 +10,7 @@ export default function Home() {
   const [status, setStatus] = useState(""); // 'loading', 'success', 'error'
   const [message, setMessage] = useState("");
 
-  // Subtle floating animation using requestAnimationFrame
+  // Subtle floating animation using requestAnimationFrame.   
   useAnimationFrame((t) => {
     if (orb1.current && orb2.current) {
       const x1 = Math.sin(t / 3000) * 50;
